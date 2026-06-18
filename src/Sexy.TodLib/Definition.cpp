@@ -1281,16 +1281,15 @@ void* DefinitionCompressCompiledBuffer(void* theBuffer, unsigned int theBufferSi
 bool DefinitionWriteCompiledFile(const std::string& theCompiledFilePath, DefMap* theDefMap, void* theDefinition) {
     unsigned int aCompressedSize = 0;
     unsigned int aDefSize = DefinitionGetSize(theDefMap, theDefinition) + sizeof(unsigned int);
-    void* aDefBasePtr = DefinitionAlloc(aDefSize);
-    void* aDef = aDefBasePtr;
+    std::vector<char> aDefBasePtr(aDefSize);
+    void* aDef = aDefBasePtr.data();
     uint aDefHash = DefinitionCalcHash(theDefMap);
 
     SMemW(aDef, &aDefHash, sizeof(uint));
     SMemW(aDef, theDefinition, theDefMap->mDefSize);
     DefMapWriteToCache(aDef, theDefMap, theDefinition);
-    void* aCompressedDef = DefinitionCompressCompiledBuffer(aDefBasePtr, aDefSize, &aCompressedSize);
-
-    delete[] (uint *)aDefBasePtr; // already compressed, no need to keep this instance alive
+    std::unique_ptr<char[]> aCompressedDef(
+        static_cast<char*>(DefinitionCompressCompiledBuffer(aDefBasePtr.data(), aDefSize, &aCompressedSize)));
 
     std::string aFullCompiledPath = DefinitionGetCompiledCacheFullPath(theCompiledFilePath);
     std::string aFilePath = GetFileDir(aFullCompiledPath);
@@ -1298,13 +1297,10 @@ bool DefinitionWriteCompiledFile(const std::string& theCompiledFilePath, DefMap*
 
     std::ofstream aFileStream(Sexy::PathFromU8(aFullCompiledPath), std::ios::binary);
     if (aFileStream) {
-        aFileStream.write(reinterpret_cast<const char*>(aCompressedDef), (std::streamsize)aCompressedSize);
-
-        delete[] (char *)aCompressedDef;
+        aFileStream.write(aCompressedDef.get(), (std::streamsize)aCompressedSize);
         return aFileStream.good();
     }
 
-    delete[] (char *)aCompressedDef;
     return false;
 }
 
