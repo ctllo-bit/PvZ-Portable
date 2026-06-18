@@ -33,7 +33,7 @@
 #include "../Sexy.TodLib/Attachment.h"
 #include "Widget/AchievementsScreen.h"
 
-constinit ProjectileDefinition gProjectileDefinition[] = {
+constinit const ProjectileDefinition gProjectileDefinition[] = {
 	{ .mProjectileType = ProjectileType::PROJECTILE_PEA, .mImageRow = 0, .mDamage = 20 },
 	{ .mProjectileType = ProjectileType::PROJECTILE_SNOWPEA, .mImageRow = 0, .mDamage = 20 },
 	{ .mProjectileType = ProjectileType::PROJECTILE_CABBAGE, .mImageRow = 0, .mDamage = 40 },
@@ -1225,9 +1225,9 @@ void Projectile::ConvertToPea(int theGridX)
 	mApp->PlayFoley(FoleyType::FOLEY_THROW);
 }
 
-ProjectileDefinition& Projectile::GetProjectileDef()
+const ProjectileDefinition& Projectile::GetProjectileDef()
 {
-	ProjectileDefinition& aProjectileDef = gProjectileDefinition[mProjectileType];
+	const ProjectileDefinition& aProjectileDef = gProjectileDefinition[mProjectileType];
 	TOD_ASSERT(aProjectileDef.mProjectileType == mProjectileType);
 
 	return aProjectileDef;

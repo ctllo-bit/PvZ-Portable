@@ -25,9 +25,9 @@
 #include "sound/SoundManager.h"
 
 int gFoleyParamArraySize;
-FoleyParams* gFoleyParamArray;
+const FoleyParams* gFoleyParamArray;
 
-constinit FoleyParams gLawnFoleyParamArray[FoleyType::NUM_FOLEY] = {
+constinit const FoleyParams gLawnFoleyParamArray[FoleyType::NUM_FOLEY] = {
 	{ .mFoleyType = FoleyType::FOLEY_SUN, .mPitchRange = 10.0f, .mSfxID = { &Sexy::SOUND_POINTS}, .mFoleyFlags = 0U },
 	{ .mFoleyType = FoleyType::FOLEY_SPLAT, .mPitchRange = 10.0f, .mSfxID = { &Sexy::SOUND_SPLAT, &Sexy::SOUND_SPLAT2, &Sexy::SOUND_SPLAT3}, .mFoleyFlags = 0U },
 	{ .mFoleyType = FoleyType::FOLEY_LAWNMOWER, .mPitchRange = 10.0f, .mSfxID = { &Sexy::SOUND_LAWNMOWER}, .mFoleyFlags = 0U },
@@ -163,7 +163,7 @@ void TodDSoundInstance::SetSoundPosition(int thePosition)
 	//mSoundBuffer->SetCurrentPosition(thePosition);
 }
 
-void TodFoleyInitialize(FoleyParams* theFoleyParamArray, int theFoleyParamArraySize)
+void TodFoleyInitialize(const FoleyParams* theFoleyParamArray, int theFoleyParamArraySize)
 {
 	TOD_ASSERT(gFoleyParamArray == nullptr && gFoleyParamArraySize == 0);
 	gFoleyParamArray = theFoleyParamArray;
@@ -211,11 +211,11 @@ bool SoundSystemHasFoleyPlayedTooRecently(TodFoley* theSoundSystem, FoleyType th
 	return false;
 }
 
-FoleyParams* LookupFoley(FoleyType theFoleyType)
+const FoleyParams* LookupFoley(FoleyType theFoleyType)
 {
 	TOD_ASSERT(theFoleyType >= 0 && theFoleyType < gFoleyParamArraySize);
 	TOD_ASSERT(gFoleyParamArraySize < MAX_FOLEY_TYPES);
-	FoleyParams* aFoleyParams = &gFoleyParamArray[theFoleyType];
+	const FoleyParams* aFoleyParams = &gFoleyParamArray[theFoleyType];
 	TOD_ASSERT(aFoleyParams->mFoleyType == theFoleyType);
 	return aFoleyParams;
 }
@@ -252,7 +252,7 @@ FoleyInstance* SoundSystemGetFreeInstanceIndex(TodFoley* theSoundSystem, FoleyTy
 
 void TodFoley::PlayFoleyPitch(FoleyType theFoleyType, float thePitch)
 {
-	FoleyParams* aFoleyParams = LookupFoley(theFoleyType);
+	const FoleyParams* aFoleyParams = LookupFoley(theFoleyType);
 	SoundSystemReleaseFinishedInstances(this);  // 释放已播放完成的音效实例
 	if (SoundSystemHasFoleyPlayedTooRecently(this, theFoleyType) && !TestBit(aFoleyParams->mFoleyFlags, FoleyFlags::FOLEYFLAGS_LOOP))
 		return;  // 非循环音效不可重叠播放
@@ -306,7 +306,7 @@ void TodFoley::PlayFoleyPitch(FoleyType theFoleyType, float thePitch)
 // GOTY @Patoke: 0x51F6F0
 void TodFoley::PlayFoley(FoleyType theFoleyType)
 {
-	FoleyParams* aFoleyParams = LookupFoley(theFoleyType);
+	const FoleyParams* aFoleyParams = LookupFoley(theFoleyType);
 	float aPitch = 0.0f;
 	if (aFoleyParams->mPitchRange != 0.0f)  // 如果定义了音高范围
 		aPitch = Sexy::Rand(aFoleyParams->mPitchRange);  // 在范围内随机选取一个音高
@@ -335,7 +335,7 @@ void TodFoley::GamePause(bool theEnteringPause)
 	SoundSystemReleaseFinishedInstances(this);
 	for (int aFoleyType = 0; aFoleyType < gFoleyParamArraySize; aFoleyType++)
 	{
-		FoleyParams* aFoleyParams = LookupFoley((FoleyType)aFoleyType);
+		const FoleyParams* aFoleyParams = LookupFoley((FoleyType)aFoleyType);
 		if (TestBit(aFoleyParams->mFoleyFlags, FoleyFlags::FOLEYFLAGS_MUTE_ON_PAUSE))  // 如果指定了暂停时静默
 		{
 			FoleyTypeData* aFoleyData = &mFoleyTypeData[aFoleyType];
@@ -409,7 +409,7 @@ void TodFoley::RehookupSoundWithMusicVolume()
 	SoundSystemReleaseFinishedInstances(this);
 	for (int aFoleyType = 0; aFoleyType < gFoleyParamArraySize; aFoleyType++)
 	{
-		FoleyParams* aFoleyParams = LookupFoley((FoleyType)aFoleyType);
+		const FoleyParams* aFoleyParams = LookupFoley((FoleyType)aFoleyType);
 		if (TestBit(aFoleyParams->mFoleyFlags, FoleyFlags::FOLEYFLAGS_USES_MUSIC_VOLUME))  // 如果规定了使用音乐音量
 		{
 			FoleyTypeData* aFoleyData = &mFoleyTypeData[aFoleyType];

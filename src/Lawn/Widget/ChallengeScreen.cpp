@@ -34,7 +34,7 @@
 #include "widget/WidgetManager.h"
 #include <SDL.h>
 
-constinit ChallengeDefinition gChallengeDefs[NUM_CHALLENGE_MODES] = {
+constinit const ChallengeDefinition gChallengeDefs[NUM_CHALLENGE_MODES] = {
 	{ .mChallengeMode = GameMode::GAMEMODE_SURVIVAL_NORMAL_STAGE_1, .mChallengeIconIndex = 0, .mPage = ChallengePage::CHALLENGE_PAGE_SURVIVAL, .mRow = 0, .mCol = 0, .mChallengeName = "[SURVIVAL_DAY_NORMAL]" },
 	{ .mChallengeMode = GameMode::GAMEMODE_SURVIVAL_NORMAL_STAGE_2, .mChallengeIconIndex = 1, .mPage = ChallengePage::CHALLENGE_PAGE_SURVIVAL, .mRow = 0, .mCol = 1, .mChallengeName = "[SURVIVAL_NIGHT_NORMAL]" },
 	{ .mChallengeMode = GameMode::GAMEMODE_SURVIVAL_NORMAL_STAGE_3, .mChallengeIconIndex = 2, .mPage = ChallengePage::CHALLENGE_PAGE_SURVIVAL, .mRow = 0, .mCol = 2, .mChallengeName = "[SURVIVAL_POOL_NORMAL]" },
@@ -159,7 +159,7 @@ ChallengeScreen::ChallengeScreen(LawnApp* theApp, ChallengePage thePage)
 	
 	for (int aChallengeMode = 0; aChallengeMode < NUM_CHALLENGE_MODES; aChallengeMode++)
 	{
-		ChallengeDefinition& aChlDef = GetChallengeDefinition(aChallengeMode);
+		const ChallengeDefinition& aChlDef = GetChallengeDefinition(aChallengeMode);
 		ButtonWidget* aChallengeButton = new ButtonWidget(ChallengeScreen::ChallengeScreen_Mode + aChallengeMode, this);
 		mChallengeButtons[aChallengeMode] = aChallengeButton;
 		aChallengeButton->mDoFinger = true;
@@ -217,11 +217,11 @@ ChallengeScreen::~ChallengeScreen()
 	delete mToolTip;
 }
 
-ChallengeDefinition& GetChallengeDefinition(int theChallengeMode)
+const ChallengeDefinition& GetChallengeDefinition(int theChallengeMode)
 {
 	TOD_ASSERT(theChallengeMode >= 0 && theChallengeMode < NUM_CHALLENGE_MODES);
 
-	ChallengeDefinition& aDef = gChallengeDefs[theChallengeMode];
+	const ChallengeDefinition& aDef = gChallengeDefs[theChallengeMode];
 	(void)aDef; // Unused in Release mode
 	TOD_ASSERT(aDef.mChallengeMode == theChallengeMode + GAMEMODE_SURVIVAL_NORMAL_STAGE_1);
 
@@ -245,7 +245,7 @@ void ChallengeScreen::SetUnlockChallengeIndex(ChallengePage thePage, bool theIsI
 	mUnlockChallengeIndex = 0;
 	for (int aChallengeMode = 0; aChallengeMode < NUM_CHALLENGE_MODES; aChallengeMode++)
 	{
-		ChallengeDefinition& aDef = GetChallengeDefinition(aChallengeMode);
+		const ChallengeDefinition& aDef = GetChallengeDefinition(aChallengeMode);
 		if (aDef.mPage == thePage)
 		{
 			if (thePage != CHALLENGE_PAGE_PUZZLE || (!theIsIZombie && IsScaryPotterLevel(aDef.mChallengeMode)) || (theIsIZombie && IsIZombieLevel(aDef.mChallengeMode)))
@@ -261,7 +261,7 @@ void ChallengeScreen::SetUnlockChallengeIndex(ChallengePage thePage, bool theIsI
 
 int ChallengeScreen::MoreTrophiesNeeded(int theChallengeIndex)
 {
-	ChallengeDefinition& aDef = GetChallengeDefinition(theChallengeIndex);
+	const ChallengeDefinition& aDef = GetChallengeDefinition(theChallengeIndex);
 	if (mApp->mGameMode == GAMEMODE_UPSELL && mApp->mGameScene == SCENE_LEVEL_INTRO)
 	{
 		return aDef.mChallengeMode == GAMEMODE_CHALLENGE_FINAL_BOSS ? 1 : 0;
@@ -288,7 +288,7 @@ int ChallengeScreen::MoreTrophiesNeeded(int theChallengeIndex)
 		if (IsScaryPotterLevel(aDef.mChallengeMode))
 		{
 			int aLevelsCompleted = 0;
-			for (ChallengeDefinition& aSPDef : gChallengeDefs)
+			for (const ChallengeDefinition& aSPDef : gChallengeDefs)
 			{
 				if (IsScaryPotterLevel(aSPDef.mChallengeMode) && mApp->HasBeatenChallenge(aSPDef.mChallengeMode))
 				{
@@ -308,7 +308,7 @@ int ChallengeScreen::MoreTrophiesNeeded(int theChallengeIndex)
 		else if (IsIZombieLevel(aDef.mChallengeMode))
 		{
 			int aLevelsCompleted = 0;
-			for (ChallengeDefinition& aIZDef : gChallengeDefs)
+			for (const ChallengeDefinition& aIZDef : gChallengeDefs)
 			{
 				if (IsIZombieLevel(aIZDef.mChallengeMode) && mApp->HasBeatenChallenge(aIZDef.mChallengeMode))
 				{
@@ -403,7 +403,7 @@ void ChallengeScreen::DrawButton(Graphics* g, int theChallengeIndex)
 	ButtonWidget* aChallengeButton = mChallengeButtons[theChallengeIndex];
 	if (aChallengeButton->mVisible)
 	{
-		ChallengeDefinition& aDef = GetChallengeDefinition(theChallengeIndex);
+		const ChallengeDefinition& aDef = GetChallengeDefinition(theChallengeIndex);
 		int aPosX = aChallengeButton->mX;
 		int aPosY = aChallengeButton->mY;
 		if (aChallengeButton->mIsDown)
@@ -655,7 +655,7 @@ void ChallengeScreen::UpdateToolTip()
 
 	for (int aChallengeMode = 0; aChallengeMode < NUM_CHALLENGE_MODES; aChallengeMode++)
 	{
-		ChallengeDefinition& aDef = GetChallengeDefinition(aChallengeMode);
+		const ChallengeDefinition& aDef = GetChallengeDefinition(aChallengeMode);
 		ButtonWidget* aChallengeButton = mChallengeButtons[aChallengeMode];
 		if (aChallengeButton->mVisible && aChallengeButton->mDisabled &&
 			aChallengeButton->Contains(mApp->mWidgetManager->mLastMouseX, mApp->mWidgetManager->mLastMouseY) &&

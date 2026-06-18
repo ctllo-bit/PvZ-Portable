@@ -2298,7 +2298,7 @@ int LawnApp::GetCurrentChallengeIndex()
 	return static_cast<int>(mGameMode) - static_cast<int>(GameMode::GAMEMODE_SURVIVAL_NORMAL_STAGE_1);
 }
 
-ChallengeDefinition& LawnApp::GetCurrentChallengeDef()
+const ChallengeDefinition& LawnApp::GetCurrentChallengeDef()
 {
 	return GetChallengeDefinition(GetCurrentChallengeIndex());
 }

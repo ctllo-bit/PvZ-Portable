@@ -35,9 +35,9 @@
 unsigned int gReanimatorDefCount;
 ReanimatorDefinition* gReanimatorDefArray;
 unsigned int gReanimationParamArraySize;
-ReanimationParams* gReanimationParamArray;
+const ReanimationParams* gReanimationParamArray;
 
-constinit ReanimationParams gLawnReanimationArray[ReanimationType::NUM_REANIMS] = {
+constinit const ReanimationParams gLawnReanimationArray[ReanimationType::NUM_REANIMS] = {
 	{ .mReanimationType = ReanimationType::REANIM_LOADBAR_SPROUT, .mReanimFileName = "reanim/LoadBar_sprout.reanim", .mReanimParamFlags = 1 },
 	{ .mReanimationType = ReanimationType::REANIM_LOADBAR_ZOMBIEHEAD, .mReanimFileName = "reanim/LoadBar_Zombiehead.reanim", .mReanimParamFlags = 1 },
 	{ .mReanimationType = ReanimationType::REANIM_SODROLL, .mReanimFileName = "reanim/SodRoll.reanim", .mReanimParamFlags = 0 },
@@ -354,7 +354,7 @@ void Reanimation::ReanimationInitializeType(float theX, float theY, ReanimationT
 
 void ReanimationCreateAtlas(ReanimatorDefinition* theDefinition, ReanimationType theReanimationType)
 {
-	ReanimationParams& aParam = gReanimationParamArray[theReanimationType];
+	const ReanimationParams& aParam = gReanimationParamArray[theReanimationType];
 	if (theDefinition->mReanimAtlas != nullptr || TestBit(aParam.mReanimParamFlags, ReanimFlags::REANIM_NO_ATLAS))
 		return;  // 当动画已存在 Atlas 或无需 Atlas 时，直接退出
 
@@ -1162,7 +1162,7 @@ void ReanimatorEnsureDefinitionLoaded(ReanimationType theReanimType, bool theIsP
 	ReanimatorDefinition* aReanimDef = &gReanimatorDefArray[theReanimType];
 	if (aReanimDef->mTracks.tracks != nullptr)  // 如果轨道指针不为空指针，说明定义数据已经加载
 		return;
-	ReanimationParams* aReanimParams = &gReanimationParamArray[theReanimType];
+	const ReanimationParams* aReanimParams = &gReanimationParamArray[theReanimType];
 	TodTrace("'%s'\n", aReanimParams->mReanimFileName);
 	if (theIsPreloading)
 	{
@@ -1191,7 +1191,7 @@ void ReanimatorEnsureDefinitionLoaded(ReanimationType theReanimType, bool theIsP
 		TodTraceAndLog("LOADING:Long reanim '%s' %d ms on %s", aReanimParams->mReanimFileName, aDuration, gGetCurrentLevelName().c_str());
 }
 
-void ReanimatorLoadDefinitions(ReanimationParams* theReanimationParamArray, int theReanimationParamArraySize)
+void ReanimatorLoadDefinitions(const ReanimationParams* theReanimationParamArray, int theReanimationParamArraySize)
 {
 	TodHesitationBracket aHesitation("ReanimatorLoadDefinitions");
 	TOD_ASSERT(!gReanimationParamArray && !gReanimatorDefArray);
@@ -1203,7 +1203,7 @@ void ReanimatorLoadDefinitions(ReanimationParams* theReanimationParamArray, int 
 #ifndef LOW_MEMORY
 	for (unsigned int i = 0; i < gReanimationParamArraySize; i++)
 	{
-		ReanimationParams* aReanimationParams = &theReanimationParamArray[i];
+		const ReanimationParams* aReanimationParams = &theReanimationParamArray[i];
 		TOD_ASSERT(aReanimationParams->mReanimationType == i);
 		if (DefinitionIsCompiled(aReanimationParams->mReanimFileName))
 			ReanimatorEnsureDefinitionLoaded(aReanimationParams->mReanimationType, true);
@@ -1427,7 +1427,7 @@ void Reanimation::UpdateAttacherTrack(int theTrackIndex)
 		std::string aReanimFileName = StrFormat("reanim/%s.reanim", aAttacherInfo.mReanimName.c_str());
 		for (unsigned int i = 0; i < gReanimationParamArraySize; i++)  // 在动画参数数组中寻找动画文件名对应的动画类型
 		{
-			ReanimationParams* aParams = &gReanimationParamArray[i];
+			const ReanimationParams* aParams = &gReanimationParamArray[i];
 			if (strcasecmp(aReanimFileName.c_str(), aParams->mReanimFileName) == 0)
 			{
 				aReanimationType = aParams->mReanimationType;
