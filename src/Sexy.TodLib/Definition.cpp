@@ -28,6 +28,7 @@
 #include <sys/stat.h>
 #include <filesystem>
 #include <fstream>
+#include <memory>
 #include "TodDebug.h"
 #include "Definition.h"
 #include "zlib.h"
@@ -607,35 +608,32 @@ bool DefinitionReadCompiledFile(const std::string& theCompiledFilePath, DefMap* 
     aFileStream.seekg(0, std::ios::end);
     size_t aCompressedSize = (size_t)aFileStream.tellg();
     aFileStream.seekg(0, std::ios::beg);
-    void* aCompressedBuffer = DefinitionAlloc(aCompressedSize);
-    aFileStream.read(reinterpret_cast<char*>(aCompressedBuffer), (std::streamsize)aCompressedSize);
+    std::vector<char> aCompressedBuffer(aCompressedSize);
+    aFileStream.read(aCompressedBuffer.data(), (std::streamsize)aCompressedSize);
     bool aReadCompressedFailed = !aFileStream || (size_t)aFileStream.gcount() != aCompressedSize;
     if (aReadCompressedFailed) { // 判断是否读取成功
         TodTrace("Failed to read compiled file: %s\n", theCompiledFilePath.c_str());
-        delete[] (char *)aCompressedBuffer;
         return false;
     }
 
     size_t aUncompressedSize;
-    void* aUncompressedBuffer = DefinitionUncompressCompiledBuffer(aCompressedBuffer, aCompressedSize, aUncompressedSize, theCompiledFilePath);
-    delete[] (char *)aCompressedBuffer;
+    std::unique_ptr<char[]> aUncompressedBuffer(
+        static_cast<char*>(DefinitionUncompressCompiledBuffer(aCompressedBuffer.data(), aCompressedSize, aUncompressedSize, theCompiledFilePath)));
     if (!aUncompressedBuffer) return false;
-    
+
     uint aDefHash = DefinitionCalcHash(theDefMap);  // 计算 CRC 校验值，后将用于检测数据的完整性
     if (aUncompressedSize < theDefMap->mDefSize + sizeof(uint)) {
         TodTrace("Compiled file size too small: %s\n", theCompiledFilePath.c_str());
-        delete[] (char *)aUncompressedBuffer;
         return false;
     } // 检测解压数据的长度是否足够“定义数据 + 一个校验值记录数据”的长度
 
 
-    // 复制一份解压数据的指针用于读取时移动，原指针后续要用于计算读取区域大小及 delete[] 操作
-    void* aBufferPtr = aUncompressedBuffer;
+    // 复制一份解压数据的指针用于读取时移动，原指针后续要用于计算读取区域大小
+    void* aBufferPtr = aUncompressedBuffer.get();
     uint aCashHash;
     SMemR(aBufferPtr, &aCashHash, sizeof(uint));  // 读取记录的 CRC 校验值
     if (aCashHash != aDefHash) {
         TodTrace("Compiled file schema wrong: %s\n", theCompiledFilePath.c_str());
-        delete[] (char *)aUncompressedBuffer;
         return false;
     } // 判断校验值是否一致，若不一致则说明数据发生错误
 
@@ -646,8 +644,7 @@ bool DefinitionReadCompiledFile(const std::string& theCompiledFilePath, DefMap* 
     SMemR(aBufferPtr, theDefinition, theDefMap->mDefSize);
     // 修复野指针及标志型数据，并保存是否成功的结果，后续作为返回值
     bool aResult = DefMapReadFromCache(aBufferPtr, theDefMap, theDefinition);
-    size_t aReadMemSize = (uintptr_t)aBufferPtr - (uintptr_t)aUncompressedBuffer;
-    delete[] (char *)aUncompressedBuffer;
+    size_t aReadMemSize = (uintptr_t)aBufferPtr - (uintptr_t)aUncompressedBuffer.get();
     if (aResult && aReadMemSize != aUncompressedSize) {
         TodTrace("Compiled file wrong size: %s\n", theCompiledFilePath.c_str());
         return false;
