@@ -882,18 +882,18 @@ const TodCurveStringMap TodCurveStrings[] = {
 */
 
 constinit const DefSymbol gDefTrackEaseSymbols[] = {
-    {TodCurves::CURVE_EASE_IN_OUT_WEAK,   "EaseInOutWeak"},
-    {TodCurves::CURVE_FAST_IN_OUT_WEAK,   "FastInOutWeak"},
-    {TodCurves::CURVE_EASE_IN_OUT,        "EaseInOut"},
-    {TodCurves::CURVE_FAST_IN_OUT,        "FastInOut"},
-    {TodCurves::CURVE_EASE_IN,            "EaseIn"},
-    {TodCurves::CURVE_EASE_OUT,           "EaseOut"},
-    {TodCurves::CURVE_EASE_SIN_WAVE,      "EaseSinWave"},
-    {TodCurves::CURVE_BOUNCE_FAST_MIDDLE, "BounceFastMiddle"},
-    {TodCurves::CURVE_BOUNCE_SLOW_MIDDLE, "BounceSlowMiddle"},
-    {TodCurves::CURVE_BOUNCE,             "Bounce"},
-    {TodCurves::CURVE_SIN_WAVE,           "SinWave"},
-    {TodCurves::CURVE_LINEAR,             "Linear"},
+    { .mSymbolValue = TodCurves::CURVE_EASE_IN_OUT_WEAK,   .mSymbolName = "EaseInOutWeak" },
+    { .mSymbolValue = TodCurves::CURVE_FAST_IN_OUT_WEAK,   .mSymbolName = "FastInOutWeak" },
+    { .mSymbolValue = TodCurves::CURVE_EASE_IN_OUT,        .mSymbolName = "EaseInOut" },
+    { .mSymbolValue = TodCurves::CURVE_FAST_IN_OUT,        .mSymbolName = "FastInOut" },
+    { .mSymbolValue = TodCurves::CURVE_EASE_IN,            .mSymbolName = "EaseIn" },
+    { .mSymbolValue = TodCurves::CURVE_EASE_OUT,           .mSymbolName = "EaseOut" },
+    { .mSymbolValue = TodCurves::CURVE_EASE_SIN_WAVE,      .mSymbolName = "EaseSinWave" },
+    { .mSymbolValue = TodCurves::CURVE_BOUNCE_FAST_MIDDLE, .mSymbolName = "BounceFastMiddle" },
+    { .mSymbolValue = TodCurves::CURVE_BOUNCE_SLOW_MIDDLE, .mSymbolName = "BounceSlowMiddle" },
+    { .mSymbolValue = TodCurves::CURVE_BOUNCE,             .mSymbolName = "Bounce" },
+    { .mSymbolValue = TodCurves::CURVE_SIN_WAVE,           .mSymbolName = "SinWave" },
+    { .mSymbolValue = TodCurves::CURVE_LINEAR,             .mSymbolName = "Linear" },
 };
 
 bool DefinitionReadFloatTrackField(XMLParser* theXmlParser, FloatParameterTrack* theTrack)
