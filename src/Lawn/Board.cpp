@@ -7744,7 +7744,7 @@ void Board::DoTypingCheck(KeyCode theKey)
 	if (mApp->mMustacheCheck->Check(theKey) || mApp->mMoustacheCheck->Check(theKey))
 	{
 		SetMustacheMode(!mMustacheMode);
-		ReportAchievement::GiveAchievement(mApp, MustacheMode, false); // @Patoke: add achievement
+		ReportAchievement::GiveAchievement(mApp, MustacheMode, true);
 		return;
 	}
 	if (mApp->mSuperMowerCheck->Check(theKey) || mApp->mSuperMowerCheck2->Check(theKey))
